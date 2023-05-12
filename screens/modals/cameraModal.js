@@ -7,7 +7,6 @@ const CameraModal = ({ closeModal }) => {
     // Implement the logic to capture an image or record a video
     // You can use the Camera methods from 'expo-camera' to capture media
   };
-
   return (
     <View style={styles.container}>
       <Camera style={styles.camera} type={CameraType.back}/>
