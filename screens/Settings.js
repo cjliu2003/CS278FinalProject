@@ -1,13 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput, Modal } from 'react-native';
 import Header from './components/Header';
+import Default from '../assets/default.png';
+import { useUserContext } from '../contexts/UserContext';
 
-const Settings = () => {
+const Settings = ({navigation}) => {
   const [name, setName] = useState("Your Name");
   const [bio, setBio] = useState("Your Bio");
   const [modalVisible, setModalVisible] = useState(false);
   const [activeModal, setActiveModal] = useState("name");
 
+  useEffect(() => {
+    if (userData) {
+      if (userData.name) setName(userData.name);
+      if (userData.bio) setBio(userData.bio);
+    }
+  }, [userData])
+  
+  const {setUserDataState, writeData, user, userData, logoutUser} = useUserContext();
   const handleNameChange = () => {
     setActiveModal("name")
     setModalVisible(true);
@@ -19,14 +29,37 @@ const Settings = () => {
   }
 
   const handleSaveChanges = () => {
+    console.log(activeModal, name, bio)
+    if (activeModal === "name") {
+      writeData(user.uid, "name", name)
+    } else if (activeModal === "bio") {
+      writeData(user.uid, "bio", bio)
+    }
     setModalVisible(false);
   }
+
+  const handleClose = () => {
+    setUserDataState(user)
+    navigation.goBack();
+  }
+
+  const handleLogout = () => {
+    logoutUser();
+  }
+
+  useEffect(() => {
+    console.log(user)
+    if (!user) {
+      navigation.navigate("Login")
+    }
+  }, [user])
+  
 
   return (
     <View style={styles.container}>
       <Header name="Settings" />
       <TouchableOpacity style={styles.profilePicContainer}>
-        <Image source={require('../assets/create.png')} style={styles.profilePic} />
+        <Image source={Default} style={styles.profilePic} />
       </TouchableOpacity>
       <TouchableOpacity style={styles.editName} onPress={handleNameChange}>
         <Text style={styles.editText}>Name</Text>
@@ -36,9 +69,12 @@ const Settings = () => {
         <Text style={styles.editText}>Bio</Text>
         <Text style={styles.editValue}>{bio}</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.saveButton} onPress={handleSaveChanges}>
-        <Text style={styles.saveButtonText}>Save Changes</Text>
+      <TouchableOpacity style={styles.saveButton} onPress={handleClose}>
+        <Text style={styles.saveButtonText}>Close</Text>
       </TouchableOpacity>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutButtonText}>Log Out</Text>
+          </TouchableOpacity>
       <Modal visible={modalVisible}>
         <View style={styles.modalContainer}>
           <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
@@ -137,12 +173,27 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 20,
+    marginHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 5,
   },
   saveButtonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: '500',
+  },
+  logoutButton: {
+    height: 50,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 20,
+    marginTop: 10,
+  },
+  logoutButtonText: {
+    color: '#ff0000',
+    fontSize: 24,
+    fontWeight: '800',
   },
   modalContainer: {
     flex: 1,

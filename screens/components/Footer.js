@@ -4,46 +4,41 @@ import { Dimensions } from 'react-native';
 import HomeLogo from '../../assets/home.png'
 import ProfileLogo from '../../assets/profile.png'
 import CreateLogo from '../../assets/create.png'
-
-import CameraModal from '../modals/cameraModal';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const screenWidth = Dimensions.get('window').width;
 
 const Footer = (props) => {
-    const [postModalVisible, setPostModalVisible] = useState(false);
     const handleProfileClick = () => {
         props.navigateProfile();
         console.log("clicked")
     }
     const handlePostClick = () => {
-        setPostModalVisible(true);
+        props.navigateCamera();
     }
 
-    const handleCloseModal = () => {
-        setPostModalVisible(false);
+    const handleHomeClick = () => {
+        props.navigateHome();
+
     }
-  return (
-    <View style={styles.container}>
-        <TouchableOpacity style={styles.iconContainer}>
-            <Image source={HomeLogo} style={{width: 40, height: 40}} />
-            <Text style={styles.iconText}>Home</Text>
+    return (
+        <LinearGradient 
+        colors={['#00000000', '#00000000']} 
+        style={styles.container}>
+        <TouchableOpacity onPress={handleHomeClick} style={styles.iconContainer}>
+            <Image source={HomeLogo} style={{width: 30, height: 30}} />
         </TouchableOpacity>
         <TouchableOpacity onPress={handlePostClick} style={styles.iconContainer}>
-            <Image source={CreateLogo} style={{width: 75, height: 75}} />
+            <Image source={CreateLogo} style={{width: 55, height: 55}} />
         </TouchableOpacity>
         <TouchableOpacity onPress={handleProfileClick} style={styles.iconContainer}>
-            <Image source={ProfileLogo} style={{width: 40, height: 40}} />
-            <Text style={styles.iconText}>Profile</Text>
+            <Image source={ProfileLogo} style={{width: 30, height: 30}} />
         </TouchableOpacity>
-
-        <Modal visible={postModalVisible}>
-            <CameraModal closeModal={handleCloseModal} animationType="slide"/>
-        </Modal>
-    </View>
-  )
-}
-
-export default Footer
+    </LinearGradient>
+      )
+    }
+    
+    export default Footer
 
 const styles = StyleSheet.create({
     container: {
@@ -51,6 +46,8 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-around',
+        backgroundColor: 'black',
+        marginBottom: '10%',
     },
     iconText: {
         color: '#fff',

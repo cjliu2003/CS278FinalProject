@@ -1,47 +1,48 @@
-import { StyleSheet, Text, View, SafeAreaView, TextInput, TouchableOpacity, Alert} from 'react-native'
-import { useEffect, useState } from 'react'
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, ScrollView, Platform, Dimensions } from 'react-native';
+import { useEffect, useState } from 'react';
 import Header from './components/Header';
 import { useUserContext } from '../contexts/UserContext';
 import { validateEmail } from './functions/validateEmail';
 
 export default function Signup({navigation}) {
-    const [email, setEmail] = useState("")
-    const [name, setName] = useState("")
-    const [password, setPassword] = useState("")
-    const [confirmPassword, setConfirmPassword] = useState("")
+    const [email, setEmail] = useState("");
+    const [name, setName] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
 
-    const {user, registerUser, initializeUserData} = useUserContext()
+    const {user, registerUser, initializeUserData} = useUserContext();
     useEffect(() => {
         if (user) {
-            navigation.replace("Home")
+            navigation.replace("Home");
         }
-    }, [user])
+    }, [user]);
 
     const handleLoginNavigation = () => {
-        navigation.navigate("Login")
-    }
+        navigation.navigate("Login");
+    };
+    
     const handleSignupClick = async () => {
         if (password !== confirmPassword) {
-            Alert.alert("Passwords do not match")
-        } else if (name == "") {
-            Alert.alert("Please enter your name")
+            Alert.alert("Passwords do not match");
+        } else if (name === "") {
+            Alert.alert("Please enter your name");
         } else if (validateEmail(email)) {
-            // console.log(name, email, password)
-            const uid = await registerUser(name, email, password)
+            const uid = await registerUser(name, email, password);
             if (uid) {
-                initializeUserData(name, uid, email)
+                initializeUserData(name, uid, email);
             }
-
         } else {
-            Alert.alert("Please enter a valid email address")
+            Alert.alert("Please enter a valid email address");
         }
-
-    }
+    };
     
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={styles.container}
+        >
             <Header name="Signup" />
-            <View style={styles.inputContainer}>
+            <ScrollView contentContainerStyle={styles.inputContainer}>
                 <TextInput
                     style={styles.inputText}
                     placeholder="Enter your email"
@@ -75,21 +76,19 @@ export default function Signup({navigation}) {
                 <Text style={styles.createAccNavText}>Already have an account? 
                     <Text style={styles.createAccNavTextEmph} onPress={handleLoginNavigation}> Login here!</Text>
                 </Text>
-            </View>
-        </View>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        display: 'flex',
-        backgroundColor: '#000'
+        backgroundColor: '#000',
     },
     inputContainer: {
-        position: 'absolute',
-        top: '40%',
-        width: '100%',
+        flexGrow: 1,
+        justifyContent: 'center',
         paddingHorizontal: 20,
     },
     inputText: {
@@ -98,7 +97,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         padding: 12,
         borderRadius: 10,
-        borderWidth: 0,
         marginBottom: 20,
         textAlign: 'center',
     },
@@ -116,33 +114,14 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         textAlign: 'center',
     },
-    logoContainer: {
-        paddingLeft: 12,
-    },
-    headerContainer: {
-        backgroundColor: 'black',
-        height: 100,
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        borderBottomColor: '#ccc',
-        borderBottomWidth: 1,
-        paddingTop: 16,
-    },
-    headerText: {
-        fontSize: 30,
-        fontWeight: '400',
-        color: '#fff',
-        paddingLeft: 16,
-      },
-      createAccNavText: {
+    createAccNavText: {
         fontSize: 16,
         textAlign: 'center',
         marginTop: 20,
         color: '#fff',
-      },
-      createAccNavTextEmph: {
+    },
+    createAccNavTextEmph: {
         fontWeight: 'bold',
-      },
-    });
+        color: '#ec0c0c',
+    },
+});

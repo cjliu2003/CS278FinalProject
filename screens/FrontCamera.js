@@ -2,15 +2,19 @@ import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, Text, Image } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
-import { useUserContext } from '../../contexts/UserContext';
+import { useUserContext } from '../contexts/UserContext';
 
+// get dimensions of screen
+import { Dimensions } from 'react-native';
 
-const CameraModal = ({ closeModal }) => {
-  const { postDraft, setPostDraft} = useUserContext()
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
+const FrontCameraScreen = ({ navigation }) => {
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
+  const {postDraft, setPostDraft} = useUserContext()
   const [isCameraReady, setCameraReady] = useState(false);
   const [image, setImage] = useState(null);
-  const [type, setType] = useState(Camera.Constants.Type.back);
+  const [type, setType] = useState(Camera.Constants.Type.front);
   const [flash, setFlash] = useState(Camera.Constants.FlashMode.off);
   const cameraRef = useRef(null);
 
@@ -26,6 +30,10 @@ const CameraModal = ({ closeModal }) => {
     setCameraReady(true);
   };
 
+  const handleClose = () => {
+    navigation.goBack();
+  }
+
   const takePicture = async () => {
     if (cameraRef.current && isCameraReady) {
       try {
@@ -40,7 +48,8 @@ const CameraModal = ({ closeModal }) => {
 
   const handleContinue = () => {
     // handle 
-    setPostDraft({ ...postDraft, image: image })
+    setPostDraft({ ...postDraft, frontImage: image })
+    navigation.navigate('Preview')
   }
 
   const handleRetake = () => {
@@ -53,10 +62,11 @@ const CameraModal = ({ closeModal }) => {
   
   return (
     <View style={styles.container}>
+      <Text style={styles.text}>Take a pic of yourself!</Text>
       {image ? 
         <>
         <TouchableOpacity style={styles.closeButton} onPress={handleRetake}>
-          <Text style={styles.closeButtonText}>Retkae</Text>
+          <Text style={styles.closeButtonText}>Retake</Text>
         </TouchableOpacity>
         <Image source={{ uri: image }} style={styles.image} /> 
         <TouchableOpacity style={styles.sendButton} onPress={handleContinue}>
@@ -72,7 +82,7 @@ const CameraModal = ({ closeModal }) => {
           ref={cameraRef}
           onCameraReady={handleCameraReady}
         />
-        <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+        <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
           <Text style={styles.closeButtonText}>Close</Text>
         </TouchableOpacity>
 
@@ -92,18 +102,20 @@ const styles = StyleSheet.create({
     backgroundColor:'#000',
   },
   camera: {
-    width: '90%',
-    height: '65%',
-    borderRadius: 15,
+    width: windowWidth * 0.95,
+    height: windowWidth * 0.95,
+    borderRadius: windowWidth * 0.95 / 2,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: '#222',
   },
   image: {
-    width: '90%',
-    height: '65%',
-    borderRadius: 15,
+    width: windowWidth * 0.95,
+      height: windowWidth * 0.95,
+      borderRadius: windowWidth * 0.95 / 2,
     overflow: 'hidden',
+    borderWidth: 5,
+    borderColor: 'white',
   },
   closeButton: {
     position: 'absolute',
@@ -129,14 +141,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
+  text: {
+    color: 'white',
+    fontSize: 32,
+    fontWeight: 'light',
+    position: 'absolute',
+    top: windowHeight * 0.2,
+  },
   sendButton: {
     position: 'absolute',
     bottom: 75,
+    backgroundColor: 'red',
+    paddingHorizontal: 25,
+    paddingVertical: 10,
+    borderRadius: 25,
   },
   sendButtonText: {
     color: 'white',
-    fontSize: 40,
+    fontSize: 24,
     fontWeight: 'bold',
   },
   captureButtonText: {
@@ -145,4 +167,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CameraModal;
+export default FrontCameraScreen;
