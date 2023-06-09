@@ -263,7 +263,7 @@ export const UserContextProvider = ({ children }) => {
           const uri = await getDownloadURL(imageRef);
           return uri;
         } catch (error) {
-          console.error('Error fetching profile picture uri:', error);
+        //   console.error('Error fetching profile picture uri:', error);
           return "https://firebasestorage.googleapis.com/v0/b/cs278-18738.appspot.com/o/default.png?alt=media&token=4f148893-8431-4922-8eef-697b3ee98591&_gl=1*qw7ecj*_ga*Njg2MDkyMzQuMTY3NzY0NzAyNQ..*_ga_CW55HF8NVT*MTY4NTk4OTk2MS4zNC4xLjE2ODU5OTAzOTEuMC4wLjA."
         }
       };
@@ -275,21 +275,21 @@ export const UserContextProvider = ({ children }) => {
             const uri = await getDownloadURL(imageRef);
             return uri;
         } catch (error) {
-            console.error('Error fetching post uri:', error);
+            // console.error('Error fetching post uri:', error);
             // try fetching image with '.jpg' added to the name
             try {
                 const imageRefJpg = ref(storage, `${uid}/${type}-${id}.jpg`);
                 const uriJpg = await getDownloadURL(imageRefJpg);
                 return uriJpg;
             } catch (jpgError) {
-                console.error('Error fetching post uri with .jpg:', jpgError);
+                // console.error('Error fetching post uri with .jpg:', jpgError);
                 // try fetching image with '.JPG' added to the name
                 try {
                     const imageRefJPG = ref(storage, `${uid}/${type}-${id}.JPG`);
                     const uriJPG = await getDownloadURL(imageRefJPG);
                     return uriJPG;
                 } catch (JPGError) {
-                    console.error('Error fetching post uri with .JPG:', JPGError);
+                    console.error('Error fetching post uri:', JPGError);
                     return null;
                 }
             }

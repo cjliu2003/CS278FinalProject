@@ -6,6 +6,7 @@ import { useUserContext } from '../contexts/UserContext';
 import { formatDateString } from './functions/parseDate';
 import Slider from '@react-native-community/slider';
 import { LinearGradient } from 'expo-linear-gradient';
+import {BlurView} from 'expo-blur';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -19,6 +20,8 @@ const Home = ({ navigation }) => {
   const [comment, setComment] = useState('');
   const [profPicMap, setProfPicMap] = useState({});
   const [namesMap, setNamesMap] = useState({});
+
+  const [hasPostedToday, setHasPostedToday] = useState(false);
 
   useEffect(() => {
     const fetchPosts = async (friends) => {
@@ -48,14 +51,34 @@ const Home = ({ navigation }) => {
       setPosts(postsArray.reverse());
     };
     if (userData) {
+      checkIfPostedToday();
       if (userData.friends) {
         fetchPosts(userData.friends);
       }
       if (userData.posts && userData.posts.length > 0) {
         fetchMostRecentPost(userData);
+
       }
     }
   }, [userData]);
+
+  const checkIfPostedToday = () => {
+    const date = new Date();
+    const dateString = date.toString();
+    const formattedDate = formatDateString(dateString);
+
+    if (userData.posts) {
+      for (let i = userData.posts.length - 1; i >= 0; i--) {
+        if (formatDateString(formatDateString(userData.posts[i].date)) === formattedDate) {
+          setHasPostedToday(false);
+          return;
+        }
+      }
+    }
+    setHasPostedToday(false);
+  }
+
+  
 
   const fetchMostRecentPost = async (userData) => {
     let lastPost = userData.posts[userData.posts.length - 1];
@@ -169,23 +192,25 @@ const Home = ({ navigation }) => {
       </View>
       {posts.map((post, index) => {
         return (
-          <View key={index} style={styles.postContainer}>
-            <TouchableOpacity onPress={() => handleFriendClick(post.uid)}>
-              {/* <Image source={{uri: post.profile}} style={styles.postProfile}></Image> */}
-              <Text style={styles.postName}>{post.name}</Text>
-            </TouchableOpacity>
-            <Text style={styles.postDate}>{post.date}</Text>
-            <View style={styles.postImageContainer}>
-              <Image style={styles.postFront} source={{ uri: post.front }} />
-              <Image style={styles.postBack} source={{ uri: post.back }} />
-            </View>
-            <TouchableOpacity style={styles.postCaptionContainer}>
-              <Text style={styles.postCaption}>"{post.caption}"</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handlePostFocusModal(post)} style={styles.postCommentContainer}>
-              <Text style={styles.postComment}>View Comments ({post.comments.length})</Text>
-            </TouchableOpacity>
-          </View>
+          <View style={styles.postContainer} key={index}>
+  <TouchableOpacity onPress={() => handleFriendClick(post.uid)}>
+    {/* <Image source={{uri: post.profile}} style={styles.postProfile}></Image> */}
+    <Text style={styles.postName}>{post.name}</Text>
+  </TouchableOpacity>
+  <Text style={styles.postDate}>{post.date}</Text>
+  <View style={styles.postImageContainer}>
+  <BlurView intensity={100} style={styles.blurOverlay} />
+  <Image style={styles.postFront} source={{ uri: post.front }} />
+  <Image style={styles.postBack} source={{ uri: post.back }} />
+</View>
+  <TouchableOpacity style={styles.postCaptionContainer}>
+    <Text style={styles.postCaption}>"{post.caption}"</Text>
+  </TouchableOpacity>
+  <TouchableOpacity onPress={() => handlePostFocusModal(post)} style={styles.postCommentContainer}>
+    <Text style={styles.postComment}>View Comments ({post.comments.length})</Text>
+  </TouchableOpacity>
+</View>
+
         );
       })}
     </ScrollView>
@@ -268,6 +293,12 @@ postContainer: {
   borderColor: '#fff',
   marginVertical: 16,
   borderRadius: 10,
+},
+blurContainer: {
+  flex: 1,
+  borderRadius: 10,
+  overflow: 'hidden',
+  marginVertical: 16,
 },
 postName: {
   color: '#fff',
@@ -465,5 +496,13 @@ commentNameText: {
   color: '#222',
   fontSize: 12,
   fontWeight: 'bold',
-}
+},
+imageOverlay: {
+  ...StyleSheet.absoluteFillObject,
+  zIndex: 2, // Ensure the overlay is positioned above the images
+},
+blurOverlay: {
+  flex: 1,
+  borderRadius: screenWidth * 0.75 / 2, // Make the overlay circular
+},
 });
